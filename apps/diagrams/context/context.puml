@@ -1,0 +1,13 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(smarthome_user, "Пользователь", "Пользователь компании 'Тёплый дом'")
+
+System(system, "Тёплый дом", "Монолитное приложение удалённого управления отоплением в доме.")
+System(sensor, "Сервис температуры", "Сервис температуры, получает температуру с датчиков.")
+
+Rel(smarthome_user, system, "Управляет отоплением, проверяет температуру через веб-интерфейс")
+Rel(system, sensor, "Запрашивает температуру", "REST")
+
+@enduml
