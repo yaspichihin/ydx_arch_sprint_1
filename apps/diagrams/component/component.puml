@@ -1,0 +1,30 @@
+@startuml
+
+title SmartHome DeviceManagement Component Diagram
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(smarthome_app, "Система умного дома") {
+  Container(smarthome_device_management, "Управление устройствами")
+  Container(smarthome_database, "Database", "PostgreSQL", "Данные об устройствах")
+}
+
+Container(smarthome_device_management, "Управление устройствами") {
+  Component(smarthome_device_management_heating_management, "Управление отоплением", "Go")
+  Component(smarthome_device_management_light_management, "Управление освещением", "Go")
+  Component(smarthome_device_management_gate_management, "Управление воротами", "Go")
+  Component(smarthome_device_management_camera_management, "Управление камерами", "Go")
+}
+
+System_Ext(temperature_service, "Сервис получения температуры с датчиков", "Python")
+
+Rel(smarthome_device_management_heating_management, smarthome_database, "Управление отоплением")
+Rel(smarthome_device_management_light_management, smarthome_database, "Управление освещением")
+Rel(smarthome_device_management_gate_management, smarthome_database, "Управление воротами")
+Rel(smarthome_device_management_camera_management, smarthome_database, "Управление камерами")
+
+Rel(smarthome_device_management_heating_management, temperature_service, "Получение данных с датчиков температуры")
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+
+title SmartHome DeviceManagement HeatingManagement Code Diagram
+top to bottom direction
+hide circle
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+
+class HeatingSensorType {
+  +String type
+}
+
+class HeatingSensorUnit {
+  +String unit
+}
+
+class HeatingSensorStatus {
+  +String status
+}
+
+class HeatingSensor {
+  +Int ID
+  +String name
+  +HeatingSensorType type
+  +String location
+  +Float value
+  +HeatingSensorUnit unit
+  +HeatingSensorStatus status
+  +DateTime created_at
+  +DateTime updated_at
+
+  +void create(name, type, location, unit)
+  +void update(id, name, type, location, unit)
+  +void delete(id)
+  +void update_value(id, value, status)
+  +void get_temperature(id, location?)
+}
+
+HeatingSensor --> HeatingSensorType : type
+HeatingSensor --> HeatingSensorUnit : unit
+HeatingSensor --> HeatingSensorStatus : status
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+
+title SmartHome ER Diagram
+top to bottom direction
+hide circle
+
+entity Subscription {
+  +id: int <<primary key>>
+  name: varchar
+  description: text
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity User {
+  +id: int <<primary key>>
+  name: varchar
+  phone: varchar <<unique>>
+  email: varchar <<unique>>
+  subscription_id: int <<foreign key>>
+  subscription_start_at: datetime
+  subscription_end_at: datetime
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity HeatingSensor {
+  +id: int <<primary key>>
+  heating_sensor_type_id: int <<foreign key>>
+  serial_number: varchar <<unique>>
+  name: varchar
+  location: varchar
+  value: float
+  unit: varchar
+  status: varchar
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity HeatingSensorType {
+  +id: int <<primary key>>
+  name: varchar <<unique>>
+  description: text
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity TelemetryData {
+  +id: int <<primary key>>
+  device_id: int <<foreign key>>
+  timestamp: datetime
+  value: varchar
+  created_at: datetime
+  updated_at: datetime
+}
+
+User ||--|| Subscription : "Подписка"
+User ||--o{ HeatingSensor : "Обладает"
+HeatingSensorType ||--o{ HeatingSensor : "Тип для"
+HeatingSensor ||--o{ TelemetryData : "Генерирует"
+
+@enduml

@@ -1,13 +1,21 @@
 @startuml
 
+title SmartHome Context Diagram
+top to bottom direction
+
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 
-Person(smarthome_user, "Пользователь", "Пользователь компании 'Тёплый дом'")
+Person(smarthome_user, "Пользователь")
+System(smarthome_app, "Тёплый дом", "Монолитное приложение удалённого управления отоплением в доме.")
+System_Ext(temperature_service, "API сервиса температуры", "API сервиса температуры, получает температуру с датчиков.")
+System_Ext(payment_system, "Система платежей", "Система платежей, получает платежи от пользователей.")
+System_Ext(notification_system, "Сервис уведомлений", "Сервис уведомлений, отправляет уведомления пользователям по sms, email, push.")
 
-System(system, "Тёплый дом", "Монолитное приложение удалённого управления отоплением в доме.")
-System(sensor, "Сервис температуры", "Сервис температуры, получает температуру с датчиков.")
-
-Rel(smarthome_user, system, "Управляет отоплением, проверяет температуру через веб-интерфейс")
-Rel(system, sensor, "Запрашивает температуру", "REST")
+Rel(smarthome_user, smarthome_app, "Управляет отоплением, проверяет температуру через веб-интерфейс")
+Rel(smarthome_app, temperature_service, "Получение температуры", "REST")
+Rel(smarthome_app, payment_system, "Оплата подписки", "REST")
+Rel(payment_system, notification_system, "Отправка уведомлений о платежах", "REST")
+Rel(smarthome_app, notification_system, "Отправка уведомлений об устройствах", "REST")
+Rel(notification_system, smarthome_user, "Получение уведомлений", "REST")
 
 @enduml
