@@ -1,0 +1,2 @@
+curl -X PUT http://localhost:8080/api/v1/sensors/1 -H "Content-Type: application/json" -d '{"name": "Updated Living Room Temperature", "type": "temperature", "location": "Living Room", "unit": "°C"}'
+echo
