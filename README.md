@@ -85,8 +85,11 @@
 # Задание 5. Работа с docker и docker-compose
 
 Путь до приложения temperature-api: apps\temperature
+
 Путь до Dockerfile приложения temperature-api: apps\temperature\Dockerfile
+
 Путь до docker compose: apps\docker-compose.yml
+
 Скрипт инициализации для БД: apps\postgres-init\init.sql, монтируется к контейнеру с БД
 
 Для проверки добавил папку curls: apps\curls
