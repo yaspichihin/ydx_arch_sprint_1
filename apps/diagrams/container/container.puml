@@ -1,6 +1,4 @@
-
 @startuml
-
 title SmartHome Container Diagram
 top to bottom direction
 
@@ -13,33 +11,42 @@ Person(smarthome_user, "Пользователь")
 System(smarthome_app, "Тёплый дом", "Монолитное приложение удалённого управления отоплением в доме.")
 Container_Boundary(smarthome_app, "Система умного дома") {
   Container(smarthome_web, "Веб приложение")
-  Container(smarthome_device, "Управление устройствами")
-  Container(smarthome_script, "Управление сценариями")
-  Container(smarthome_notification, "Управление уведомлениями")
-  Container(smarthome_user_profile, "Управление пользователями")
-  Container(smarthome_database, "Database", "PostgreSQL")
+  Container(smarthome_api_gateway, "API шлюз", "", "Маршрутизация, аутентификация, rate limiting.")
+  Container(smarthome_heating, "Микросервис отопления", "Go", "Управление отоплением, получение и обработка температурных данных, отправка событий в Kafka.")
+  Container(smarthome_light, "Микросервис освещения", "Go", "Управление освещением, расписания, сценарии, события в Kafka.")
+  Container(smarthome_camera, "Микросервис камер", "Go", "Управление камерами, хранение метаданных, обработка событий движения, отправка событий в Kafka.")
+  Container(smarthome_gate, "Микросервис ворот", "Go", "Управление воротами, контроль доступа, события открытия/закрытия, Kafka.")
+  Container(smarthome_script, "Микросервис сценариев", "Go", "Хранение и выполнение пользовательских сценариев, взаимодействие с другими сервисами через Kafka и REST.")
+  Container(smarthome_telemetry, "Микросервис телеметрии", "Go", "Сбор и хранение телеметрии, публикация данных в Kafka.")
+  Container(smarthome_user_profile, "Микросервис пользователей", "Go", "Управление пользователями, аутентификация, авторизация, профили пользователей.")
+  Container(smarthome_stream, "EventBus", "Kafka", "Обмен данными между микросервисами через Kafka.")
+  Container(smarthome_database, "Database", "PostgreSQL", "Хранение данных отопления, освещения, камер, ворот, сценариев, телеметрии. Каждый сервис использует свою схему.")
 }
-System_Ext(temperature_service, "API сервиса температуры", "API сервиса температуры, получает температуру с датчиков.")
-System_Ext(payment_system, "Система платежей", "Система платежей, получает платежи от пользователей.")
-System_Ext(notification_system, "Сервис уведомлений", "Сервис уведомлений, отправляет уведомления пользователям по sms, email, push.")
 
+Rel_D(smarthome_user, smarthome_web, "Управляет подпиской, устройствами и сценариями")
+Rel_D(smarthome_web, smarthome_api_gateway, "Веб приложение использует API шлюз для взаимодействия с микросервисами.", "REST")
 
-Rel(smarthome_user, smarthome_web, "Управляет подпиской, устройствами и сценариями")
-Rel(smarthome_web, smarthome_user_profile, "Управление, аутентификация, авторизация пользователей и их профилями.")
-Rel(smarthome_web, smarthome_device, "Управление, взаимодействие с устройствами.")
-Rel(smarthome_web, smarthome_script, "Управление, взаимодействие с сценариями.")
-Rel(smarthome_web, smarthome_notification, "Управление, взаимодействие с уведомлениями.")
+BiRel_D(smarthome_api_gateway, smarthome_heating, "", "REST")
+BiRel_D(smarthome_api_gateway, smarthome_light, "", "REST")
+BiRel_D(smarthome_api_gateway, smarthome_camera, "", "REST")
+BiRel_D(smarthome_api_gateway, smarthome_gate, "", "REST")
+BiRel_D(smarthome_api_gateway, smarthome_script, "", "REST")
+BiRel_D(smarthome_api_gateway, smarthome_telemetry, "", "REST")
+BiRel_D(smarthome_api_gateway, smarthome_user_profile, "", "REST")
 
-Rel(smarthome_user_profile, smarthome_database, "Чтение, запись пользователей и их профилями.")
-Rel(smarthome_device, smarthome_database, "Чтение, запись устройств.")
-Rel(smarthome_script, smarthome_database, "Чтение, запись сценариев.")
-Rel(smarthome_notification, smarthome_database, "Чтение, запись уведомлений.")
+Rel_D(smarthome_heating, smarthome_database, "", "SQL")
+Rel_D(smarthome_light, smarthome_database, "", "SQL")
+Rel_D(smarthome_camera, smarthome_database, "", "SQL")
+Rel_D(smarthome_gate, smarthome_database, "", "SQL")
+Rel_D(smarthome_script, smarthome_database, "", "SQL")
+Rel_D(smarthome_user_profile, smarthome_database, "", "SQL")
 
-Rel(smarthome_device, temperature_service, "Получение температуры", "REST")
-Rel(smarthome_user_profile, payment_system, "Оплата подписки", "REST")
+Rel_D(smarthome_heating, smarthome_stream, "", "Kafka")
+Rel_D(smarthome_light, smarthome_stream, "", "Kafka")
+Rel_D(smarthome_camera, smarthome_stream, "", "Kafka")
+Rel_D(smarthome_gate, smarthome_stream, "", "Kafka")
+Rel_D(smarthome_script, smarthome_stream, "", "Kafka")
+Rel_D(smarthome_telemetry, smarthome_stream, "", "Kafka")
 
-Rel(payment_system, notification_system, "Отправка уведомлений о платежах", "REST")
-Rel(smarthome_notification, notification_system, "Отправка уведомлений об устройствах", "REST")
-Rel(notification_system, smarthome_user, "Получение уведомлений", "REST")
-
+Lay_R(smarthome_database, smarthome_stream)
 @enduml

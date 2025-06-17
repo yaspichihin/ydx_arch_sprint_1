@@ -5,26 +5,28 @@ top to bottom direction
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
 
+Container_Ext(smarthome_database, "База данных", "PostgreSQL")
+Container_Ext(temperature_service, "API сервиса температуры", "", "Получает температуру с датчиков")
+Container_Ext(smarthome_stream, "EventBus", "Kafka")
 
-Container_Boundary(smarthome_app, "Система умного дома") {
-  Container(smarthome_device_management, "Управление устройствами")
-  Container(smarthome_database, "Database", "PostgreSQL", "Данные об устройствах")
+Container(smarthome_heating, "Микросервис отопления", "Go", "Управление отоплением, получение и обработка температурных данных, отправка событий в Kafka.") {
+  Component(smarthome_heating_business_logic, "Бизнес логика", "Go", "Основная логика управления, обработка команд, принятие решений.")
+  Component(smarthome_heating_schedule, "Планировщик задач", "Go", "Выполнение плановых задач (например, ночное снижение температуры).")
+  Component(smarthome_heating_api, "REST API сервер", "Go, Gin", "Принимает команды управления отоплением, запросы статуса.")
+  Component(smarthome_heating_db_adapter, "Адаптер для базы данных", "Go", "Работа с БД (состояние, история, настройки).")
+  Component(smarthome_heating_temperature_adapter, "Адаптер для температуры", "Go", "Получение температуры с датчиков.")
+  Component(smarthome_heating_stream_adapter, "Адаптер для Kafka", "Go", "Отправка и получение событий (например, изменение температуры, аварии).")
 }
 
-Container(smarthome_device_management, "Управление устройствами") {
-  Component(smarthome_device_management_heating_management, "Управление отоплением", "Go")
-  Component(smarthome_device_management_light_management, "Управление освещением", "Go")
-  Component(smarthome_device_management_gate_management, "Управление воротами", "Go")
-  Component(smarthome_device_management_camera_management, "Управление камерами", "Go")
-}
 
-System_Ext(temperature_service, "Сервис получения температуры с датчиков", "Python")
+Rel_D(smarthome_heating_schedule, smarthome_heating_business_logic, "Запланированные задачи")
+Rel_D(smarthome_heating_api, smarthome_heating_business_logic, "REST API запросы")
+Rel_D(smarthome_heating_business_logic, smarthome_heating_db_adapter, "Чтение/запись данных в базу данных")
+Rel_D(smarthome_heating_business_logic, smarthome_heating_temperature_adapter, "Чтение/запись данных в базу данных")
+BiRel_D(smarthome_heating_business_logic, smarthome_heating_stream_adapter, "Публикация/получение событий в Kafka")
 
-Rel(smarthome_device_management_heating_management, smarthome_database, "Управление отоплением")
-Rel(smarthome_device_management_light_management, smarthome_database, "Управление освещением")
-Rel(smarthome_device_management_gate_management, smarthome_database, "Управление воротами")
-Rel(smarthome_device_management_camera_management, smarthome_database, "Управление камерами")
-
-Rel(smarthome_device_management_heating_management, temperature_service, "Получение данных с датчиков температуры")
+Rel_D(smarthome_heating_db_adapter, smarthome_database, "Чтение/запись данных в базу данных")
+Rel_D(smarthome_heating_temperature_adapter, temperature_service, "Получение температуры с датчиков")
+Rel_D(smarthome_heating_stream_adapter, smarthome_stream, "Отправка событий в Kafka")
 
 @enduml
