@@ -1,0 +1,406 @@
+openapi: 3.0.4
+
+info:
+  title: SmartHome -> DeviceManagement
+  version: 1.0.12
+
+servers:
+  - url: http://localhost:8080/api/v1
+
+tags:
+  - name: Sensors
+
+paths:
+  /sensors:
+    get:
+      tags:
+        - Sensors
+      summary: Find all user sensors
+      description: Returns all users sensors
+      operationId: getSensors
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sensor'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - smarthome_auth:
+            - write:sensors
+            - read:sensors
+    post:
+      tags:
+        - Sensors
+      summary: Add a new sensor
+      description: Add a new sensor
+      operationId: addSensor
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+      requestBody:
+        description: Create a new sensor
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sensor'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - smarthome_auth:
+            - write:sensors
+            - read:sensors
+
+  /sensors/{sensor_id}:
+    get:
+      tags:
+        - Sensors
+      summary: Find sensors by ID
+      description: Returns a single sensor
+      operationId: getSensorById
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: sensor_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sensor'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Sensor not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - smarthome_auth:
+            - write:sensors
+            - read:sensors
+    put:
+      tags:
+        - Sensors
+      summary: Update an existing sensor.
+      description: Update an existing sensor by Id.
+      operationId: updateSensor
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: sensor_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update an existent sensor
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorUpdate'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sensor'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Sensor not found
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - smarthome_auth:
+            - write:sensors
+            - read:sensors
+    delete:
+      tags:
+        - Sensors
+      summary: Deletes a sensor.
+      description: Delete a sensor.
+      operationId: deleteSensor
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: sensor_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Sensor deleted
+        '404':
+          description: Sensor not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - smarthome_auth:
+            - write:sensors
+            - read:sensors
+
+  /sensors/{sensor_id}/value:
+    get:
+      tags:
+        - Sensors
+      summary: Get sensor value by ID
+      description: Returns a sensor value
+      operationId: getSensorValueById
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: sensor_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorValue'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Sensor not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - smarthome_auth:
+            - write:sensors
+            - read:sensors
+
+components:
+  schemas:
+
+    Sensor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: some_name
+        type:
+          type: string
+          example: some_type_1
+          enum:
+            - some_type_1
+            - some_type_2
+            - some_type_3
+        location:
+          type: string
+          example: some_location
+        value:
+          type: integer
+          example: 24.3
+        unit:
+          type: string
+          example: some_unit_1
+          enum:
+            - some_unit_1
+            - some_unit_2
+            - some_unit_3
+        status:
+          type: string
+          example: some_status_1
+          enum:
+            - some_status_1
+            - some_status_2
+            - some_status_3
+        updated_at:
+          type: string
+          example: "1111-11-11 11:11:11"
+        created_at:
+          type: string
+          example: "1111-11-11 11:11:11"
+
+    SensorCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: some_name
+        type:
+          type: string
+          example: some_type_1
+          enum:
+            - some_type_1
+            - some_type_2
+            - some_type_3
+        location:
+          type: string
+          example: some_location
+        unit:
+          type: string
+          example: some_unit_1
+          enum:
+            - some_unit_1
+            - some_unit_2
+            - some_unit_3
+
+    SensorUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: some_name
+        type:
+          type: string
+          example: some_type_1
+          enum:
+            - some_type_1
+            - some_type_2
+            - some_type_3
+        location:
+          type: string
+          example: some_location
+        value:
+          type: integer
+          example: 24.3
+        unit:
+          type: string
+          example: some_unit_1
+          enum:
+            - some_unit_1
+            - some_unit_2
+            - some_unit_3
+        status:
+          type: string
+          example: some_status_1
+          enum:
+            - some_status_1
+            - some_status_2
+            - some_status_3
+
+    SensorValue:
+      type: object
+      properties:
+        value:
+          type: integer
+          example: 24.3
+        status:
+          type: string
+          example: some_status_1
+          enum:
+            - some_status_1
+            - some_status_2
+            - some_status_3
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+
+  requestBodies:
+    Sensor:
+      description: Sensor object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Sensor'
+
+  securitySchemes:
+    smarthome_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://some_url.swagger.io/oauth/authorize
+          scopes:
+            "write:sensors": Create and update sensors in your account
+            "read:sensors": Read your sensors
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

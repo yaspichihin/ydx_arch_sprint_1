@@ -1,0 +1,83 @@
+@startuml
+
+title SmartHome ER Diagram
+top to bottom direction
+hide circle
+
+entity Subscription {
+  +id: int <<primary key>>
+  name: varchar
+  description: text
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity User {
+  +id: int <<primary key>>
+  name: varchar
+  phone: varchar <<unique>>
+  email: varchar <<unique>>
+  subscription_id: int <<foreign key>>
+  subscription_start_at: datetime
+  subscription_end_at: datetime
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity House {
+  +id: int <<primary key>>
+  name: varchar
+  address: varchar
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity Module {
+  +id: int <<primary key>>
+  house_id: int <<foreign key>>
+  name: varchar
+  type: varchar
+  status: varchar
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity Device {
+  +id: int <<primary key>>
+  device_type_id: int <<foreign key>>
+  serial_number: varchar <<unique>>
+  name: varchar
+  location: varchar
+  value: float
+  unit: varchar
+  status: varchar
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity DeviceType {
+  +id: int <<primary key>>
+  name: varchar <<unique>>
+  description: text
+  created_at: datetime
+  updated_at: datetime
+}
+
+entity Telemetry {
+  +id: int <<primary key>>
+  device_id: int <<foreign key>>
+  timestamp: datetime
+  value: varchar
+  created_at: datetime
+  updated_at: datetime
+}
+
+User }o--|| Subscription : "Подписка"
+User }o--|| House : "Владеет"
+House ||--o{ Module : "Содержит"
+Module ||--o{ Device : "Содержит"
+DeviceType ||--o{ Device : "Тип для"
+Device ||--o{ Telemetry : "Генерирует"
+
+
+@enduml
